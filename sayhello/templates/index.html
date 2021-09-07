@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="{{ url_for('static', filename='js/hls.js') }}"></script>
+    <title>转播大屏 通往世界</title>
+    <link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet" />
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    <div class="content">
+        <div class="left">
+            <!--服务器信息-->
+            <div class="air">
+                <div class="air-title title numfont">服务器负载</div>
+                <div class="air-relative">
+                    <div class="air-val">
+                        <span class="air-icon"></span>
+                        <div class="numfont">
+                            <p class="hpa-rel" id="cpu">0</p>
+                            <p class="hpa-nam">%</p>
+                        </div>
+                    </div>
+                    <div class="gray">
+
+                    </div>
+                    <div class="light">
+
+                    </div>
+                    <div class="unit">CPU</div>
+                </div>
+                <div class="air-absolutely">
+                    <div class="air-val">
+                        <span class="air-icon"></span>
+                        <div class="numfont">
+                            <p class="hpa-abs" id="memory">0</p>
+                            <p class="hpa-nam">%</p>
+                        </div>
+                    </div>
+                    <div class="gray">
+
+                    </div>
+                    <div class="light">
+
+                    </div>
+                    <div class="unit">MEMORY</div>
+                </div>
+            </div>
+            <!--服务器信息 end-->
+            <!--推拉流地址-->
+            <div class="tem-hum">
+                <div class="temperature">
+                    <div class="tem-hum-title numfont">推流地址<button style="background-color: #B0CC35;" onclick="copytuiliu_text()">复制</button></div>
+                    <div class="tem-hum-chart">
+                        <p id="tuiliu_text" style="color:whitesmoke;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;width:100%;">{{ address[0] }}</p>
+                        <input id="tuiliu_input" style=" position:absolute;top:-10000px;opacity: 0;">
+                        <script>
+                        function copytuiliu_text() {
+                            var text = document.getElementById("tuiliu_text").innerText;
+                            var input = document.getElementById("tuiliu_input");
+                            input.value = text; // 修改文本框的内容
+                            input.select(); // 选中文本
+                            document.execCommand("copy"); // 执行浏览器复制命令
+                        }
+                        </script>
+                    </div>
+                </div>
+                <div class="humidity">
+                    <div class="tem-hum-title numfont">拉流地址<button style="background-color: #B0CC35;" onclick="copylailiu_text()">复制</button></div>
+                    <p id="lailiu_text" style="color:whitesmoke;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;width:100%;">
+                        RTMP: {{ address[1] }} &nbsp;<br>
+                        FLV: {{ address[2] }} &nbsp;<br>
+                        M3U8: {{ address[3] }} &nbsp;<br>
+                    </p>
+                    <input id="lailiu_input" style="position:absolute;top:-10000px;opacity: 0;">
+                    <script>
+                    function copylailiu_text() {
+                        var text = document.getElementById("lailiu_text").innerText;
+                        var input = document.getElementById("lailiu_input");
+                        input.value = text; // 修改文本框的内容
+                        input.select(); // 选中文本
+                        document.execCommand("copy"); // 执行浏览器复制命令
+                    }
+                    </script>
+                </div>
+            </div>
+            <!--推拉流地址 end-->
+            <form action="/starttask" method="post">
+                <!--转播名称-->
+                <div class="temp-k">
+                    <div class="title numfont">转播名称</div>
+                    <input name="name" style="width:80%; height:25%; margin-left: 10%; margin-top: 2%;" type="text" value="">
+                </div>
+                <!--转播名称 end-->
+
+                <!--转播推流地址-->
+                <div class="dity-k">
+                    <div class="title numfont">转播推流地址</div>
+                    <input name="url" style="width:80%; height:25%; margin-left: 10%; margin-top: 2%;" type="text" value="" autocomplete="off">
+                </div>
+                <div class="dity-k">
+                    <div class="title numfont">提交</div>
+                    <button type="submit" style="width:80%; height:25%; margin-left: 10%; margin-top: 2%; background-color: #B0CC35;">开始转播</button>
+                </div>
+                <!--转播推流地址 end-->
+            </form>
+        </div>
+
+        <div class="middle">
+            <div class="headTitle"><h1>转播平台</h1></div>
+            <!--转播平台-->
+            <div class="chinaMap" style="color: white;">
+                <video id="video" controls loop="false" width="100%" height="80%"></video>
+                <script>
+                    var video = document.getElementById('video');
+                    var hls = new Hls();
+                    hls.loadSource('{{ address[3] }}');
+                    hls.attachMedia(video);
+                </script>
+                <div class="circle0"></div>
+
+                <div id="btn" style="display: none;">
+                    <div style="position: relative;">
+                        <div class="btn0"></div>
+                        <div class="btn1"></div>
+                        <div class="btn2"></div>
+                    </div>
+                </div>
+
+                <div class="mapBox">
+                    <div id="map">
+
+                    </div>
+                </div>
+                <div class="circle1"></div>
+            </div>
+            <!--转播平台 end-->
+            <!--动画-->
+            <div class="lineRun">
+
+            </div>
+            <!--动画 end-->
+        </div>
+
+        <div class="right">
+            <div class="information">
+                <!--基本信息-->
+                <div class="baseInfo">
+                    <p class="infoTitle">转播时间</p>
+                    <p class="area">{{ task_status }}</p>
+                    <p class="infoTitle">
+                        当前时间
+                        <span class="date" id="curr_time"></span>
+                    </p>
+                    <p class="infoTitle">
+                        开始转播时间
+                        <span class="idNum">{{ starttask_time }}</span>
+                    </p>
+                    <p class="infoTitle">
+                        <span class="infoTitle" style="display: inline-block;margin-right: 40px;">已经开始转播时长</span>
+                        <span class="days" id="deltatask_time">0d 0h 0min 0s</span>
+                        <!-- <span class="infoTitle">DAY</span> -->
+                    </p>
+
+                </div>
+                <!--基本信息 end-->
+                <!--转播数量-->
+                <div class="temData">
+                    <!-- <p class="infoTitle" style="margin-bottom: 0;font-size: 12px;">INDOOR MAXIMUM</p> -->
+                    <div id="left" style="width:25%;float:left;">
+                        <p class="temTitle">转播数量</p>
+                        <p class="indoorTem" ><span class="temperatureN" id="task_cnt" value="{{ task_cnt }}">{{ task_cnt }}</span>个</p>
+                    </div>
+                    <div id="right" style="width:25%;float:right;">
+                        <p class="temTitle">观看数量</p>
+                        <p class="indoorTem"><span class="temperatureN">0</span>个</p>
+                    </div>
+                </div>
+                <!--转播数量 end-->
+            </div>
+            <!--列表-->
+            <div id="windChart">
+            <style>
+                td, th {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    word-break: break-all;
+                }
+            </style>
+            <form action="/stoptask" method="post">
+                <input name="stop_onetask" id="stop_onetask" type="hidden" value="">
+                <table class="panel-table" bordercolor="#B0CC35" border="1" style="table-layout:fixed; width: 100%;">
+                    <thead bgcolor="#B0CC35" align="center" >
+                    <tr height="40">
+                        <th colspan="3">
+                        <div id="left" style="width:25%;float:left;">正在转播列表</div>
+                        <div id="right" style="width:25%;float:right;"><button  type="submit" name="stop_alltask" style="background-color: #ff0000;">一键全部停止</button></div>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody style="color:whitesmoke;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;width:100%;">
+                    {% for message in site_messages %}
+                    <tr style="font-size: 16px;" align="center" >
+                        <td>{{ message.name }}##{{message.id}}</td>
+                        <td>{{ message.url }}</td>
+                        <td>
+                            <button id="stop_{{ message.name }}" style="background-color: #B0CC35;">停止转播</button>
+                            <script type="text/javascript">
+                                document.getElementById("stop_{{ message.name }}").onclick = function(){
+                                    var stop_name = document.getElementById("stop_onetask");
+                                    stop_name.value = "{{ message.name }}";
+                                }
+                            </script>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+            </div>
+            <!--列表 end-->
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script type="text/javascript">
+        function delta_time(){
+        var date1= '{{ starttask_time }}';
+        var date2 = new Date();
+        var date3 = date2.getTime() - new Date(date1).getTime();    
+        var days=Math.floor(date3/(24*3600*1000))  
+        var leave1=date3%(24*3600*1000)
+        var hours=Math.floor(leave1/(3600*1000))  
+        var leave2=leave1%(3600*1000)
+        var minutes=Math.floor(leave2/(60*1000))  
+        var leave3=leave2%(60*1000)
+        var seconds=Math.round(leave3/1000)
+            document.getElementById("deltatask_time").innerHTML = days+'d '+hours+'h '+minutes+'min '+seconds+'s';
+        }
+        var delta_time_id = setInterval(function() {delta_time()},1000);
+        if (document.getElementById('task_cnt').innerText == '0'){
+            clearInterval(delta_time_id);
+        }
+         
+    </script>
+    <script>
+        function mytime(){
+        var a = new Date();
+        var b = a.toLocaleTimeString();
+        var c = a.toLocaleDateString();
+            document.getElementById("curr_time").innerHTML = c+"&nbsp"+b;
+        }
+        setInterval(function() {mytime()},1000);
+        </script>
+    <script>
+        $(function(){
+            for(var i=0;i<50;i++){
+                $('.air-relative').find('.gray').append('<span></span>');
+                $('.air-absolutely').find('.gray').append('<span></span>')
+            }
+            var pressureValRel=0;
+            var pressureValNowRel=0;
+            function airPreRel(now,old,par){
+                var cpu = document.getElementById("cpu").innerText;
+                now = parseInt(cpu);
+                if(now>old){
+                    par.find('.light').append('<span></span>');
+                    pressureValRel++;
+                }else if(now<old){
+                    par.find('.light').children('span:last-child').remove();
+                    pressureValRel--;
+                }else{
+                    // clearInterval(pressureRunRel);
+                    return
+                }
+                // $('.hpa-rel').text(pressureValRel);
+            }
+            var pressureRunRel=setInterval(function(){
+                airPreRel(pressureValNowRel,pressureValRel,$('.air-relative'));
+            },100);
+
+            var pressureValAbs=0;
+            var pressureValNowAbs=parseInt(memory);
+            function airPreAbs(now,old,par){
+                var memory = document.getElementById("memory").innerText;
+                now = parseInt(memory);
+                if(now>old){
+                    par.find('.light').append('<span></span>');
+                    pressureValAbs++;
+                }else if(now<old){
+                    par.find('.light').children('span:last-child').remove();
+                    pressureValAbs--;
+                }else{
+                    // clearInterval(pressureRunAbs);
+                    return
+                }
+                // $('.hpa-abs').text(pressureValAbs);
+            }
+            var pressureRunAbs=setInterval(function(){
+                airPreAbs(pressureValNowAbs,pressureValAbs,$('.air-absolutely'));
+            },100);
+        });
+
+        function getDynamicData() {
+            $.ajax({
+                type: "GET",
+                url: "/getinfo",
+                dataType: "json",
+                success: function (result) {
+                    var cpu = document.getElementById("cpu");
+                    var memory = document.getElementById("memory");
+                    cpu.innerText = result.cpu;
+                    memory.innerText = result.memory;
+                }
+            });
+        }
+        getDynamicData();
+        setInterval(getDynamicData, 30000);
+    </script>
+</body>
+</html>
